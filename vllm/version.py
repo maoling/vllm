@@ -11,6 +11,11 @@ except Exception as e:
     __version__ = "dev"
     __version_tuple__ = (0, 0, __version__)
 
+try:
+    from ._version import __build_date__
+except Exception:
+    __build_date__ = None
+
 
 def _prev_minor_version_was(version_str):
     """Check whether a given version matches the previous minor version.

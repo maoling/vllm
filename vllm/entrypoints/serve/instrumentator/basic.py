@@ -8,7 +8,7 @@ from vllm.engine.protocol import EngineClient
 from vllm.entrypoints.openai.engine.serving import OpenAIServing
 from vllm.entrypoints.serve.tokenize.serving import OpenAIServingTokenization
 from vllm.logger import init_logger
-from vllm.version import __version__ as VLLM_VERSION
+from vllm.version import __build_date__, __version__ as VLLM_VERSION
 
 router = APIRouter()
 
@@ -54,4 +54,6 @@ async def get_server_load_metrics(request: Request):
 @router.get("/version")
 async def show_version():
     ver = {"version": VLLM_VERSION}
+    if __build_date__:
+        ver["build_date"] = __build_date__
     return JSONResponse(content=ver)

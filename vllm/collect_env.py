@@ -279,9 +279,11 @@ def get_rocm_version(run_lambda):
 
 def get_vllm_version():
     from vllm import __version__, __version_tuple__
+    from vllm.version import __build_date__
 
     if __version__ == "dev":
         return "N/A (dev)"
+    parts = []
     version_str = __version_tuple__[-1]
     if isinstance(version_str, str) and version_str.startswith("g"):
         # it's a dev build
@@ -289,11 +291,15 @@ def get_vllm_version():
             # it's a dev build containing local changes
             git_sha = version_str.split(".")[0][1:]
             date = version_str.split(".")[-1][1:]
-            return f"{__version__} (git sha: {git_sha}, date: {date})"
+            parts.append(f"git sha: {git_sha}, date: {date}")
         else:
             # it's a dev build without local changes
             git_sha = version_str[1:]  # type: ignore
-            return f"{__version__} (git sha: {git_sha})"
+            parts.append(f"git sha: {git_sha}")
+    if __build_date__:
+        parts.append(f"built: {__build_date__}")
+    if parts:
+        return f"{__version__} ({', '.join(parts)})"
     return __version__
 
 

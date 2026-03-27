@@ -866,15 +866,32 @@ def get_nvcc_cuda_version() -> Version:
     return nvcc_cuda_version
 
 
+def _append_build_date_to_version_file() -> None:
+    """Append the build date (UTC, ISO 8601) to vllm/_version.py.
+
+    Called after setuptools_scm writes _version.py so that the build
+    timestamp is baked into every installation.
+    """
+    import datetime
+
+    build_date = (datetime.datetime.now(datetime.timezone.utc)
+                  .strftime("%Y-%m-%dT%H:%M:%S%z"))
+    with open("vllm/_version.py", "a") as f:
+        f.write(f"\n__build_date__ = build_date = '{build_date}'\n")
+
+
 def get_vllm_version() -> str:
     # Allow overriding the version. This is useful to build platform-specific
     # wheels (e.g. CPU, TPU) without modifying the source.
     if env_version := os.getenv("VLLM_VERSION_OVERRIDE"):
         print(f"Overriding VLLM version with {env_version} from VLLM_VERSION_OVERRIDE")
         os.environ["SETUPTOOLS_SCM_PRETEND_VERSION"] = env_version
-        return get_version(write_to="vllm/_version.py")
+        version = get_version(write_to="vllm/_version.py")
+        _append_build_date_to_version_file()
+        return version
 
     version = get_version(write_to="vllm/_version.py")
+    _append_build_date_to_version_file()
     sep = "+" if "+" not in version else "."  # dev versions might contain +
 
     if _no_device():

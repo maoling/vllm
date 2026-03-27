@@ -50,6 +50,16 @@ def main():
                 "Unspecified platform detected, switching to CPU Platform instead."
             )
 
+    def _version_string() -> str:
+        ver = importlib.metadata.version("vllm")
+        try:
+            from vllm.version import __build_date__
+            if __build_date__:
+                return f"{ver} (built {__build_date__})"
+        except Exception:
+            pass
+        return ver
+
     parser = FlexibleArgumentParser(
         description="vLLM CLI",
         epilog=VLLM_SUBCMD_PARSER_EPILOG.format(subcmd="[subcommand]"),
@@ -58,7 +68,7 @@ def main():
         "-v",
         "--version",
         action="version",
-        version=importlib.metadata.version("vllm"),
+        version=_version_string(),
     )
     subparsers = parser.add_subparsers(required=False, dest="subparser")
     cmds = {}
